@@ -1,1 +1,33 @@
-Explain the code execution based on the order of the messages logged in src/quiz/promise-2darray.txt.
+THe order of the execution is:
+
+1.  "Sum called ... " (from the first call)
+2. "returning from sum" (also from the first call)
+3. "Sum called ... " (from the second call)
+4. "rejecting ... " (since the second call's input is invalid)
+5. "returning from sum" (also from the second call)
+6. "BAD INPUT: Expected array as input" (error handled from the second call)
+7. Finally, after all synchronous code has run and the event loop checks the microtask queue, "resolving ... " and the computed sum 45
+
+Explaination:
+
+1. First call to sum2DArray(array2D):
+"Sum called ... " is logged as the function starts executing.
+Since the input array2D is an array, the condition Array.isArray(arr) passes, but the execution within the setTimeout is deferred to be asynchronous.
+"returning from sum" is logged next because the execution continues immediately after setting up the setTimeout, even before the timeout callback is executed.
+
+2. Handling of sumPromise1:
+At this point, the promise sumPromise1 is pending, waiting for the setTimeout callback to execute. The actual resolution and subsequent logging of the sum will happen asynchronously and are thus deferred.
+
+3. Second call to sum2DArray("array2D"):
+Again, "Sum called ... " is logged as the function starts for the second call.
+This time, the input is a string, not an array. Therefore, it immediately logs "rejecting ... " and rejects the promise.
+"returning from sum" is logged next, as the execution continues right after the rejection.
+
+4.  Handling of sumPromise2:
+The rejection of sumPromise2 is immediately handled by the .catch() method, logging the error message "BAD INPUT: Expected array as input".
+
+5. Asynchronous setTimeout callback from the first call executes:
+After the JavaScript engine has processed the synchronous code and the call stack is clear, it checks the callback queue. The setTimeout callback from the first call is now ready to execute.
+"resolving ... " is logged as the callback starts executing.
+The sum of the array elements is computed, and the promise is resolved with this sum.
+The resolution of sumPromise1 is then handled by the .then() method, which logs the computed sum (45 in this case) to the console.
