@@ -11,27 +11,29 @@ function sumRow(row) {
   });
 }
 
-function sum2DArrayConcurrently(array2D) {
-  const promises = array2D.map((row) =>
-    sumRow(row).catch((error) => {
-      console.error("Error summing row:", error);
-      return 0;
-    })
-  );
+async function sum2DArrayConcurrently(array2D) {
+  try {
+    const promises = array2D.map((row) =>
+      sumRow(row).catch((error) => {
+        console.error("Error summing row:", error);
+        return 0;
+      })
+    );
 
-  return Promise.all(promises)
-    .then((rowSums) =>
-      rowSums.reduce((totalSum, rowSum) => totalSum + rowSum, 0)
-    )
-    .catch((error) => {
-      console.error("An error occurred while summing the 2D array:", error);
-    });
+    const rowSums = await Promise.all(promises);
+    const totalSum = rowSums.reduce((total, current) => total + current, 0);
+    return totalSum;
+  } catch (error) {
+    console.error("An error occurred while summing the 2D array:", error);
+    throw error;
+  }
 }
 
-sum2DArrayConcurrently(array2D)
-  .then((totalSum) => {
+(async () => {
+  try {
+    const totalSum = await sum2DArrayConcurrently(array2D);
     console.log("Total Sum:", totalSum);
-  })
-  .catch((error) => {
+  } catch (error) {
     console.error("An error occurred:", error);
-  });
+  }
+})();
